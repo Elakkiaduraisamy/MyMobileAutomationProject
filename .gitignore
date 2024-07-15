@@ -48,3 +48,5 @@ venv.bak/
 .pyre/
 
 *.log
+NotGitFOlder/
+features-NotGitfolder/
