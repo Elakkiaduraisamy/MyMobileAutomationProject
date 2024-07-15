@@ -1,0 +1,10 @@
+behave==1.2.6
+Appium-Python-Client==2.6.0
+pytest==7.1.2
+pytest-bdd==5.0.0
+Allure-Pytest==2.9.45
+selenium==4.1.0
+webdriver-manager==3.8.3
+pytest-xdist==2.5.0
+pytest-bdd==7.2.0
+

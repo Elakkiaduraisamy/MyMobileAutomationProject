@@ -1,0 +1,15 @@
+2024-07-14 00:49:52,303 - INFO - Starting Appium server with args: ['--address', '127.0.0.1', '--port', '4724', '--log-level', 'info', '--base-path', '/wd/hub']
+2024-07-14 00:50:00,840 - INFO - Appium server started on port 4724
+2024-07-14 00:50:01,037 - ERROR - Failed to start Appium server on port 4724: Message: 'automationName' can't be blank
+Stacktrace:
+InvalidArgumentError: 'automationName' can't be blank
+    at processCapabilities (/usr/local/lib/node_modules/appium/node_modules/@appium/base-driver/lib/basedriver/capabilities.ts:338:13)
+    at parseCapsForInnerDriver (/usr/local/lib/node_modules/appium/lib/utils.js:152:40)
+    at AppiumDriver.createSession (/usr/local/lib/node_modules/appium/lib/appium.js:636:49)
+    at commandExecutor (/usr/local/lib/node_modules/appium/node_modules/@appium/base-driver/lib/basedriver/driver.ts:107:18)
+    at AppiumDriver.executeCommand (/usr/local/lib/node_modules/appium/node_modules/@appium/base-driver/lib/basedriver/driver.ts:124:15)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at defaultBehavior (/usr/local/lib/node_modules/appium/lib/appium.js:1119:16)
+    at AppiumDriver.executeWrappedCommand (/usr/local/lib/node_modules/appium/lib/appium.js:1229:16)
+    at AppiumDriver.executeCommand (/usr/local/lib/node_modules/appium/lib/appium.js:1135:17)
+    at asyncHandler (/usr/local/lib/node_modules/appium/node_modules/@appium/base-driver/lib/protocol/protocol.js:387:19)

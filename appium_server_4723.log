@@ -1,0 +1,8 @@
+2024-07-14 00:49:52,303 - INFO - Starting Appium server with args: ['--address', '127.0.0.1', '--port', '4723', '--log-level', 'debug', '--base-path', '/wd/hub', '--session-override', '--relaxed-security']
+2024-07-14 00:52:51,611 - ERROR - Failed to start Appium server on port 4723: Appium has failed to start on 127.0.0.1:4723 within 60000ms timeout
+2024-07-14 00:52:55,501 - INFO - Starting Appium server with args: ['--address', '127.0.0.1', '--port', '4723', '--log-level', 'debug', '--base-path', '/wd/hub', '--session-override', '--relaxed-security']
+2024-07-14 00:56:06,779 - ERROR - Failed to start Appium server on port 4723: Appium has failed to start on 127.0.0.1:4723 within 60000ms timeout
+2024-07-14 01:00:12,633 - INFO - Starting Appium server with args: ['--address', '127.0.0.1', '--port', '4723', '--log-level', 'debug', '--base-path', '/wd/hub', '--session-override', '--relaxed-security']
+2024-07-14 01:03:45,492 - ERROR - Failed to start Appium server on port 4723: Appium has failed to start on 127.0.0.1:4723 within 60000ms timeout
+2024-07-14 08:57:44,370 - INFO - Starting Appium server with args: ['--address', '127.0.0.1', '--port', '4723', '--log-level', 'debug', '--base-path', '/wd/hub', '--session-override', '--relaxed-security']
+2024-07-14 09:09:02,128 - ERROR - Failed to start Appium server on port 4723: Appium has failed to start on 127.0.0.1:4723 within 60000ms timeout

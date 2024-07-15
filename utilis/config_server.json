@@ -1,0 +1,11 @@
+{
+  "servers": [
+    {
+      "port": 4723,
+      "log_level": "debug",
+      "session_override": true,
+      "relaxed_security": true,
+      "address": "127.0.0.1"
+    }
+  ]
+}
