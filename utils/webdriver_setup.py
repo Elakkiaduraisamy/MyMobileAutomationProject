@@ -2,7 +2,7 @@ from appium.webdriver.common.appiumby import AppiumBy
 from appium.webdriver.webdriver import webdriver
 import os
 from appium.options.ios import XCUITestOptions
-from utils.appiumUtilities import *
+from utils.appium_utilities import *
 
 
 def main():
