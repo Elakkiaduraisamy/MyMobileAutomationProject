@@ -15,7 +15,9 @@ def start_appium_server(config):
     appium_service = AppiumService()
     appium_service.start(args=[
         '--address', config['appium_server_address'],
-        '--port', config['appium_server_port']
+        '--port', config['appium_server_port'],
+        '--log', config['log_file_path'],  # Add the log argument here
+        '--log-level', config['log_level']
     ])
 
     timeout = 120

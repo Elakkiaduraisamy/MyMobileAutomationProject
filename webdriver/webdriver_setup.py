@@ -1,4 +1,6 @@
 import os
+import subprocess
+
 from appium import webdriver
 from utils.appium_utilities import (
     start_appium_server,
@@ -36,8 +38,34 @@ class WebDriverSetup:
         self.driver.implicitly_wait(40)
         return self.driver
 
+    def is_app_installed(self, bundle_id):
+        try:
+            result = self.driver.execute_script('mobile: isAppInstalled', {'bundleId': bundle_id})
+            return result
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return False
+
+    def get_config(self,key):
+        return self.config['key']
+
     def teardown_driver(self):
         if self.driver:
             self.driver.quit()
         if self.appium_service:
             self.appium_service.stop()
+
+            # Close the iOS simulator
+            if self.config['platform_name'].lower() == 'ios':
+                self.shutdown_ios_simulator()
+
+    def shutdown_ios_simulator(self):
+        try:
+            ud_id = self.config.get('udid')
+            if ud_id:
+                subprocess.run(['xcrun', 'simctl', 'shutdown', ud_id], check=True)
+                logger.info(f"Simulator with UDID {ud_id} has been shut down.")
+            else:
+                logger.error("UDID is not provided in the config to shut down the simulator.")
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Failed to shut down the simulator: {e}")
