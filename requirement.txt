@@ -7,4 +7,3 @@ selenium==4.1.0
 webdriver-manager==3.8.3
 pytest-xdist==2.5.0
 pytest-bdd==7.2.0
-

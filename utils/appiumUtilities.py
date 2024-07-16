@@ -1,43 +1,43 @@
-import os
-from telnetlib import EC
-
-from appium import webdriver
 from appium.options.ios import XCUITestOptions
-from appium.options.ios.xcuitest import app
-from appium.webdriver.appium_service import AppiumService
-from appium.webdriver.common.appiumby import AppiumBy
-from appium.webdriver.common.mobileby import MobileBy
-from appium.webdriver.common.touch_action import TouchAction
-from selenium import webdriver as selenium_webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver import ActionChains, DesiredCapabilities
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
-from selenium.webdriver import ActionChains
-from selenium.webdriver.support.wait import WebDriverWait
-from webdriver_manager.chrome import ChromeDriverManager
-from appium.options.common import AppiumOptions
-from selenium import *
+from appium import webdriver
+from appium.webdriver.appium_service import AppiumService
+
 
 def start_appium_server():
-    # Start Appium service
     appium_service = AppiumService()
     appium_service.start(args=['--address', '127.0.0.1', '--port', '4723'])
 
-    # Check if Appium service is running
     if appium_service.is_running:
         print('Appium server is running')
 
     return appium_service
 
+
 def launch_appium_options(app_path):
-    options = XCUITestOptions()
-    options.set_capability('platformName', 'iOS')
-    options.set_capability('platformVersion', '17.5')  # Specify the iOS version
-    options.set_capability('deviceName', 'iPhone 15')  # Specify the device name
-    options.set_capability('automationName', 'XCUITest')
-   # options.set_capability('app',app_path)
-    options.set_capability('wdaLaunchTimeout', 120000)
-    options.set_capability('udid', '248E0AF0-F804-43C1-B4F9-D3EAA68605C7')
-    options.set_capability('bundleId', 'com.example.apple1-samplecode.UICatalog')
-    return options
+    try:
+        options = XCUITestOptions()
+        options.set_capability('platformName', 'iOS')
+        options.set_capability('platformVersion', '17.5')  # Specify the iOS version
+        options.set_capability('deviceName', 'iPhone 15')  # Specify the device name
+        options.set_capability('automationName', 'XCUITest')
+        options.set_capability('app', app_path)
+        options.set_capability('wdaLaunchTimeout', 120000)
+        options.set_capability('udid', '1EAC3323-4716-4A35-8BC4-C3102B8AD09E')
+        print(f"Appium options created: {options}")
+
+        if not hasattr(options, 'to_capabilities'):
+            raise AttributeError("XCUITestOptions object does not have 'to_capabilities' attribute")
+
+        return options
+    except Exception as e:
+        print(f"Error in creating Appium options: {e}")
+        return XCUITestOptions()
+
 
 def is_app_installed(driver, bundle_id):
     try:
@@ -46,6 +46,7 @@ def is_app_installed(driver, bundle_id):
     except Exception as e:
         print(f"An error occurred: {e}")
         return False
+
 
 def element_click(driver, element_name, timeout=10):
     """
@@ -83,6 +84,7 @@ def element_click(driver, element_name, timeout=10):
         print(f"An error occurred: {e}")
         raise
 
+
 def scrolldown_to_element_click(driver, element_name):
     """
     Attempts to scroll and try to find the element and click
@@ -99,6 +101,7 @@ def scrolldown_to_element_click(driver, element_name):
         except (TimeoutException, NoSuchElementException):
             # If element is not found, perform a scroll
             driver.execute_script("mobile: scroll", {"direction": "down"})
+
 
 # Function to switch context to webview
 def switch_to_webview(driver):
@@ -120,18 +123,13 @@ def switch_to_webview(driver):
             return
     raise Exception("No WEBVIEW context found")
 
-# Function to switch context to native app
+
 def switch_to_native(driver):
     driver.switch_to.context('NATIVE_APP')
-    print("Switched to context: NATIVE_AP")
+    print("Switched to context: NATIVE_APP")
+
 
 def swipe_with_action_chains_using_coordinates(driver, direction):
-    """
-    Perform swipe action using ActionChains.
-
-    :param driver: The Appium driver instance.
-    :param direction: The direction to swipe ('up', 'down', 'left', 'right').
-    """
     window_size = driver.get_window_size()
     width = window_size['width']
     height = window_size['height']
@@ -153,41 +151,8 @@ def swipe_with_action_chains_using_coordinates(driver, direction):
         raise ValueError("Invalid direction: choose from 'up', 'down', 'left', 'right'")
 
     actions = ActionChains(driver)
-    actions.w3c_actions.pointer_action.move_to_location(start_x, start_y)
-    actions.w3c_actions.pointer_action.pointer_down()
-    actions.w3c_actions.pointer_action.move_to_location(end_x, end_y)
-    actions.w3c_actions.pointer_action.pointer_up()
+    actions.move_to_element_with_offset(driver.find_element(By.TAG_NAME, 'body'), start_x, start_y)
+    actions.click_and_hold()
+    actions.move_by_offset(end_x - start_x, end_y - start_y)
+    actions.release()
     actions.perform()
-
-
-def swipe_with_touch_action_using_coordinates(driver, direction):
-    """
-    Perform swipe action using TouchAction.
-
-    :param driver: The Appium driver instance.
-    :param direction: The direction to swipe ('up', 'down', 'left', 'right').
-    """
-    window_size = driver.get_window_size()
-    width = window_size['width']
-    height = window_size['height']
-
-    start_x = width / 2
-    start_y = height / 2
-    end_x = start_x
-    end_y = start_y
-
-    if direction == 'up':
-        end_y = start_y - (height / 4)
-    elif direction == 'down':
-        end_y = start_y + (height / 4)
-    elif direction == 'left':
-        end_x = start_x - (width / 4)
-    elif direction == 'right':
-        end_x = start_x + (width / 4)
-    else:
-        raise ValueError("Invalid direction: choose from 'up', 'down', 'left', 'right'")
-
-    touch_action = TouchAction(driver)
-    touch_action.press(x=start_x, y=start_y).move_to(x=end_x, y=end_y).release().perform()
-
-
