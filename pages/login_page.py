@@ -47,9 +47,11 @@ class LoginPage:
 
         login_button = wait.until(EC.presence_of_element_located((AppiumBy.ACCESSIBILITY_ID, 'test-LOGIN')))
         login_button.click()
-
+        print("getting the title of the page")
+        logger.info("getting the title of the page")
         actual_title_image = wait.until(EC.presence_of_element_located(
-            (AppiumBy.XPATH, '//XCUIElementTypeImage[@name="assets/src/img/swag-labs-logo.png"]')))
-        actual_title = actual_title_image.get_attribute("name")
+            (AppiumBy.IOS_CLASS_CHAIN, '**/XCUIElementTypeStaticText[`name == "PRODUCTS"`]')))
 
-        assert actual_title == "SWAGLABS"
+        actual_title = actual_title_image.get_attribute("name")
+        logger.info("getting the title of the page:")
+        assert actual_title == "PRODUCTS"
