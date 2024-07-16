@@ -42,6 +42,8 @@ def launch_appium_options(config):
         options.set_capability('wdaLaunchTimeout', 120000)
         options.set_capability('udid', config['udid'])
         options.set_capability('bundleId', config['bundle_id'])
+        options.no_reset = True
+
         logger.info(f"Appium options created: {options}")
         return options
     except Exception as e:

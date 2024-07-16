@@ -33,11 +33,7 @@ class WebDriverSetup:
         server_url = f"http://{self.config['appium_server_address']}:{self.config['appium_server_port']}"
         logger.info(f"Connecting to Appium server at {server_url}")
         self.driver = webdriver.Remote(server_url, options=options)
-
-        # Uninstall and reinstall the app
-        if is_app_installed(self.driver, self.config['bundle_id']):
-            uninstall_app(self.driver, self.config['bundle_id'])
-        install_app(self.driver, self.config['app_path'])
+        self.driver.implicitly_wait(40)
         return self.driver
 
     def teardown_driver(self):
