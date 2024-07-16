@@ -53,5 +53,6 @@ class LoginPage:
             (AppiumBy.IOS_CLASS_CHAIN, '**/XCUIElementTypeStaticText[`name == "PRODUCTS"`]')))
 
         actual_title = actual_title_image.get_attribute("name")
-        logger.info("getting the title of the page:")
+        print(actual_title)
+
         assert actual_title == "PRODUCTS"
