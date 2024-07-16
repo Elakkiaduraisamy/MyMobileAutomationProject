@@ -8,5 +8,5 @@
     "automation_name": "XCUITest",
     "app_path": "../apps/MyRNDemoApp.app",
     "udid": "1EAC3323-4716-4A35-8BC4-C3102B8AD09E",
-    "bundle_id": "com.example.apple1-samplecode.UICatalog"
+    "bundle_id": "com.saucelabs.mydemoapp.rn"
 }
