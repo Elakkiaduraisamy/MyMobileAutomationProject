@@ -1,6 +1,6 @@
 from appium.webdriver.common.appiumby import AppiumBy
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.by import By
+from utils.appium_utilities import element_click, scrolldown_to_element_click, switch_to_webview, switch_to_native, \
+    swipe_with_action_chains_using_coordinates
 
 
 class HomePage:
@@ -9,7 +9,7 @@ class HomePage:
 
     def click_search(self):
         search_button = self.driver.find_element(AppiumBy.ACCESSIBILITY_ID, 'Search')
-        search_button.click()
+        element_click(self.driver, (AppiumBy.ACCESSIBILITY_ID, 'Search'))
 
     def verify_search_bar(self):
         actual_title = self.driver.find_element(AppiumBy.ACCESSIBILITY_ID, 'Search Bar').text
@@ -17,52 +17,21 @@ class HomePage:
 
     def navigate_back(self):
         back_button = self.driver.find_element(AppiumBy.XPATH, '//XCUIElementTypeButton[@name="UICatalog"]')
-        back_button.click()
+        element_click(self.driver, (AppiumBy.XPATH, '//XCUIElementTypeButton[@name="UICatalog"]'))
 
     def verify_uicatalog(self):
         actual_title = self.driver.find_element(AppiumBy.ACCESSIBILITY_ID, 'UICatalog').text
         assert actual_title == "UICatalog", f"Expected title 'UICatalog', but got '{actual_title}'"
 
+    def swipe(self, direction):
+        swipe_with_action_chains_using_coordinates(self.driver, direction)
+
     def scroll_to_webview(self):
         webview_element = self.driver.find_element(AppiumBy.ACCESSIBILITY_ID, "Web View")
-        self.driver.execute_script("mobile: scroll", {"direction": "down"})
-        webview_element.click()
+        scrolldown_to_element_click(self.driver, (AppiumBy.ACCESSIBILITY_ID, "Web View"))
 
     def switch_to_webview(self):
-        contexts = self.driver.contexts
-        for context in contexts:
-            if 'WEBVIEW' in context:
-                self.driver.switch_to.context(context)
-                return
-        raise Exception("No WEBVIEW context found")
+        switch_to_webview(self.driver)
 
     def switch_to_native(self):
-        self.driver.switch_to.context('NATIVE_APP')
-
-    def swipe(self, direction):
-        window_size = self.driver.get_window_size()
-        width = window_size['width']
-        height = window_size['height']
-
-        start_x = width / 2
-        start_y = height / 2
-        end_x = start_x
-        end_y = start_y
-
-        if direction == 'up':
-            end_y = start_y - (height / 4)
-        elif direction == 'down':
-            end_y = start_y + (height / 4)
-        elif direction == 'left':
-            end_x = start_x - (width / 4)
-        elif direction == 'right':
-            end_x = start_x + (width / 4)
-        else:
-            raise ValueError("Invalid direction: choose from 'up', 'down', 'left', 'right'")
-
-        actions = ActionChains(self.driver)
-        actions.move_to_element_with_offset(self.driver.find_element(By.TAG_NAME, 'body'), start_x, start_y)
-        actions.click_and_hold()
-        actions.move_by_offset(end_x - start_x, end_y - start_y)
-        actions.release()
-        actions.perform()
+        switch_to_native(self.driver)
