@@ -1,42 +1,52 @@
+import logging
+import time
+from appium.webdriver.appium_service import AppiumService
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from appium.options.ios import XCUITestOptions
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver import ActionChains, DesiredCapabilities
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
-from appium import webdriver
-from appium.webdriver.appium_service import AppiumService
+from selenium.webdriver import ActionChains
+from utils.logger import logger
+from utils.config_loader import load_config
 
 
-def start_appium_server():
+def start_appium_server(config):
     appium_service = AppiumService()
-    appium_service.start(args=['--address', '127.0.0.1', '--port', '4723'])
+    appium_service.start(args=[
+        '--address', config['appium_server_address'],
+        '--port', config['appium_server_port']
+    ])
+
+    timeout = 120
+    start_time = time.time()
+    while not appium_service.is_running and (time.time() - start_time) < timeout:
+        time.sleep(1)
 
     if appium_service.is_running:
-        print('Appium server is running')
+        logger.info('Appium server is running')
+    else:
+        logger.error('Failed to start Appium server within the timeout')
 
     return appium_service
 
 
-def launch_appium_options(app_path):
+def launch_appium_options(config):
     try:
         options = XCUITestOptions()
-        options.set_capability('platformName', 'iOS')
-        options.set_capability('platformVersion', '17.5')  # Specify the iOS version
-        options.set_capability('deviceName', 'iPhone 15')  # Specify the device name
-        options.set_capability('automationName', 'XCUITest')
-        options.set_capability('app', app_path)
+        options.set_capability('platformName', config['platform_name'])
+        options.set_capability('platformVersion', config['platform_version'])
+        options.set_capability('deviceName', config['device_name'])
+        options.set_capability('automationName', config['automation_name'])
+        options.set_capability('app', config['app_path'])
         options.set_capability('wdaLaunchTimeout', 120000)
-        options.set_capability('udid', '1EAC3323-4716-4A35-8BC4-C3102B8AD09E')
-        print(f"Appium options created: {options}")
-
-        if not hasattr(options, 'to_capabilities'):
-            raise AttributeError("XCUITestOptions object does not have 'to_capabilities' attribute")
-
+        options.set_capability('udid', config['udid'])
+        options.set_capability('bundleId', config['bundle_id'])
+        logger.info(f"Appium options created: {options}")
         return options
     except Exception as e:
-        print(f"Error in creating Appium options: {e}")
-        return XCUITestOptions()
+        logger.error(f"Error in creating Appium options: {e}")
+        return None
 
 
 def is_app_installed(driver, bundle_id):
@@ -44,89 +54,55 @@ def is_app_installed(driver, bundle_id):
         result = driver.execute_script('mobile: isAppInstalled', {'bundleId': bundle_id})
         return result
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}")
         return False
+def enter_text(self, locator, text, timeout=10):
+        element = self.find_element(*locator, timeout)
+        element.clear()
+        element.send_keys(text)
+        return element
 
-
-def element_click(driver, element_name, timeout=10):
-    """
-    Attempts to click on an element under specific conditions to handle simulator interactions.
-
-    This method:
-    - Waits for the element to be present, visible, and clickable.
-    - Raises a TimeoutException if the element is not clickable within the specified timeout period.
-    - Raises a NoSuchElementException if the element is not found.
-
-    These exceptions help to explicitly identify issues in the script related to element interaction.
-    args passed and its description:
-    :driver: The Appium driver instance.
-    :locator: The locator tuple for the element (By, value).
-    :timeout: The maximum time to wait for the element to be clickable.
-    :raises TimeoutException: If the element is not clickable within the timeout.
-    :raises NoSuchElementException: If the element is not found.
-"""
+def element_click(driver, locator, timeout=10):
     try:
-        # Wait for the element to be present and visible
-        WebDriverWait(driver, timeout).until(EC.presence_of_element_located(element_name))
-        # Wait for the element to be clickable
-        WebDriverWait(driver, timeout).until(EC.element_to_be_clickable(element_name))
-        # Find and click the element
-        element = driver.find_element(*element_name)
+        WebDriverWait(driver, timeout).until(EC.presence_of_element_located(locator))
+        WebDriverWait(driver, timeout).until(EC.element_to_be_clickable(locator))
+        element = driver.find_element(*locator)
         element.click()
-        print(f"Clicked on element: {element_name}")
+        logger.info(f"Clicked on element: {locator}")
     except TimeoutException:
-        print(f"Timeout: Element not clickable after {timeout} seconds: {element_name}")
+        logger.error(f"Timeout: Element not clickable after {timeout} seconds: {locator}")
         raise
     except NoSuchElementException:
-        print(f"Error: Element not found: {element_name}")
+        logger.error(f"Error: Element not found: {locator}")
         raise
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}")
         raise
 
 
-def scrolldown_to_element_click(driver, element_name):
-    """
-    Attempts to scroll and try to find the element and click
-
-    raises TimeoutException, NoSuchElementException
-    args passed and its description:
-    :param driver:
-    :param element_name:
-    """
+def scrolldown_to_element_click(driver, locator):
     while True:
         try:
-            element_click(driver, element_name)
-            break  # Break the loop if the element is found and clicked
+            element_click(driver, locator)
+            break
         except (TimeoutException, NoSuchElementException):
-            # If element is not found, perform a scroll
             driver.execute_script("mobile: scroll", {"direction": "down"})
 
 
-# Function to switch context to webview
 def switch_to_webview(driver):
-    """
-    This method helps to switch from native app to webview of the application
-    and moves back to native
-    Raises exceptions  and uses the args
-    :param driver:
-    :return:
-    """
-    # Get the available contexts
     contexts = driver.contexts
-    print("Available contexts:", contexts)
-    # Switch to the webview context
+    logger.info(f"Available contexts: {contexts}")
     for context in contexts:
         if 'WEBVIEW' in context:
             driver.switch_to.context(context)
-            print(f"Switched to context: {context}")
+            logger.info(f"Switched to context: {context}")
             return
     raise Exception("No WEBVIEW context found")
 
 
 def switch_to_native(driver):
     driver.switch_to.context('NATIVE_APP')
-    print("Switched to context: NATIVE_APP")
+    logger.info("Switched to context: NATIVE_APP")
 
 
 def swipe_with_action_chains_using_coordinates(driver, direction):
@@ -156,3 +132,20 @@ def swipe_with_action_chains_using_coordinates(driver, direction):
     actions.move_by_offset(end_x - start_x, end_y - start_y)
     actions.release()
     actions.perform()
+    logger.info(f"Swiped {direction}")
+
+
+def uninstall_app(driver, bundle_id):
+    try:
+        driver.remove_app(bundle_id)
+        logger.info(f"App with bundleId {bundle_id} uninstalled successfully")
+    except Exception as e:
+        logger.error(f"An error occurred while uninstalling the app: {e}")
+
+
+def install_app(driver, app_path):
+    try:
+        driver.install_app(app_path)
+        logger.info(f"App at {app_path} installed successfully")
+    except Exception as e:
+        logger.error(f"An error occurred while installing the app: {e}")
