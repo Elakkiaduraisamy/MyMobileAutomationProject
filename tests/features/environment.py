@@ -1,7 +1,9 @@
-
+import os
+import sys
 
 from utils.logger import logger
 from webdriver.webdriver_setup import WebDriverSetup
+
 
 def before_all(context):
     logger.info("Initializing test run")
