@@ -13,7 +13,6 @@ This project is a sample setup for mobile automation testing using Behave (a BDD
 - [Teardown](#teardown)
 - [Allure Reports](#allure-reports)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## Prerequisites
 
