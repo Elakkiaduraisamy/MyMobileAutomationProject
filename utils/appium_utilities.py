@@ -1,5 +1,7 @@
 import logging
 import time
+
+from appium.options.android import UiAutomator2Options
 from appium.webdriver.appium_service import AppiumService
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -12,12 +14,15 @@ from utils.config_loader import load_config
 
 
 def start_appium_server(config):
+    print(config)
     appium_service = AppiumService()
     appium_service.start(args=[
         '--address', config['appium_server_address'],
         '--port', config['appium_server_port'],
         '--log', config['log_file_path'],  # Add the log argument here
-        '--log-level', config['log_level']
+        '--log-level', config['log_level'],
+        '--log-timestamp',
+        '--local-timezone'
     ])
 
     timeout = 120
@@ -32,19 +37,81 @@ def start_appium_server(config):
 
     return appium_service
 
+"""
+def launch_appium_options(platform_config, user_passed_platform_name, config):
+    
+        try:
+            options = XCUITestOptions()
+            options.set_capability('platformName', config['platform_name'])
+            options.set_capability('platformVersion', config['platform_version'])
+            options.set_capability('deviceName', config['device_name'])
+            options.set_capability('automationName', config['automation_name'])
+            options.set_capability('app', config['app_path'])
+            options.set_capability('wdaLaunchTimeout', 120000)
+            options.set_capability('udid', config['udid'])
+            options.set_capability('bundleId', config['bundle_id'])
+            options.no_reset = True
 
-def launch_appium_options(config):
     try:
-        options = XCUITestOptions()
-        options.set_capability('platformName', config['platform_name'])
-        options.set_capability('platformVersion', config['platform_version'])
-        options.set_capability('deviceName', config['device_name'])
-        options.set_capability('automationName', config['automation_name'])
-        options.set_capability('app', config['app_path'])
-        options.set_capability('wdaLaunchTimeout', 120000)
-        options.set_capability('udid', config['udid'])
-        options.set_capability('bundleId', config['bundle_id'])
-        options.no_reset = True
+        if user_passed_platform_name'.lower()] == 'ios':
+            options = XCUITestOptions()
+            options.set_capability('platformName', platform_config['platform_name'])
+            options.set_capability('platformVersion', platform_config['platform_version'])
+            options.set_capability('deviceName', platform_config['device_name'])
+            options.set_capability('automationName', platform_config['automation_name'])
+            options.set_capability('app', platform_config['app_path'])
+            options.set_capability('wdaLaunchTimeout', 120000)
+            options.set_capability('bundleId', platform_config['bundle_id'])
+            options.set_capability('wdaLocalPort', platform_config['wda_local_port'])
+            options.set_capability('useNewWDA', True)
+            options.set_capability('xcodeOrgId', platform_config['xcode_org_id'])
+            options.set_capability('xcodeSigningId', platform_config['xcode_signing_id'])
+            options.set_capability('resetOnSessionStartOnly', True)
+        elif config['user_passed_platform_name'.lower()] == 'android':
+            options = UiAutomator2Options()
+            options.set_capability('platformName', platform_config['platform_name'])
+            options.set_capability('platformVersion', platform_config['platform_version'])
+            options.set_capability('deviceName', platform_config['device_name'])
+            options.set_capability('automationName', platform_config['automation_name'])
+            options.set_capability('app', platform_config['app_path'])
+            options.set_capability('appPackage', platform_config['app_package'])
+            options.set_capability('appActivity', platform_config['app_activity'])
+            options.set_capability('newCommandTimeout', 300)
+        else:
+            raise ValueError(f"Unsupported platform: {config['platform_name']}")
+
+        logger.info(f"Appium options created: {options}")
+        return options
+    except Exception as e:
+        logger.error(f"Error in creating Appium options: {e}")
+        return None
+"""
+
+
+def launch_appium_options(platform_config, platform_name):
+    try:
+        if platform_name.lower() == 'ios':
+            options = XCUITestOptions()
+            options.set_capability('platformName', platform_config['platform_name'])
+            options.set_capability('platformVersion', platform_config['platform_version'])
+            options.set_capability('deviceName', platform_config['device_name'])
+            options.set_capability('automationName', platform_config['automation_name'])
+            options.set_capability('app', platform_config['app_path'])
+            options.set_capability('wdaLaunchTimeout', 120000)
+            options.set_capability('bundleId', platform_config['bundle_id'])
+            options.set_capability('resetOnSessionStartOnly', True)
+        elif platform_name.lower() == 'android':
+            options = UiAutomator2Options()
+            options.set_capability('platformName', platform_config['platform_name'])
+            options.set_capability('platformVersion', platform_config['platform_version'])
+            options.set_capability('deviceName', platform_config['device_name'])
+            options.set_capability('automationName', platform_config['automation_name'])
+            options.set_capability('app', platform_config['app_path'])
+            options.set_capability('appPackage', platform_config['app_package'])
+            options.set_capability('appActivity', platform_config['app_activity'])
+            options.set_capability('newCommandTimeout', 300)
+        else:
+            raise ValueError(f"Unsupported platform: {platform_name}")
 
         logger.info(f"Appium options created: {options}")
         return options
@@ -60,11 +127,14 @@ def is_app_installed(driver, bundle_id):
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         return False
+
+
 def enter_text(self, locator, text, timeout=10):
-        element = self.find_element(*locator, timeout)
-        element.clear()
-        element.send_keys(text)
-        return element
+    element = self.find_element(*locator, timeout)
+    element.clear()
+    element.send_keys(text)
+    return element
+
 
 def element_click(driver, locator, timeout=10):
     try:

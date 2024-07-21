@@ -5,10 +5,11 @@ from pages.login_page import LoginPage  # Assuming LoginPage is in the correct m
 
 
 @given('the app is set up')
-def step_given_app_is_set_up(context):
+def step_given_app_is_set_up( context):
     logger.info("Setting up WebDriver")
-    context.webdriver_setup = WebDriverSetup()
-    context.driver = context.webdriver_setup.setup_driver()
+    platform_name = context.config.userdata.get('platform', 'iOS')  # Default to iOS if not specified
+    context.webdriver_init = WebDriverSetup( context)
+    context.driver = context.webdriver_init.setup_driver()
     context.login_page = LoginPage(context.driver)
 
 
@@ -22,8 +23,8 @@ def step_when_user_logs_in_with_standard_credentials(context):
 def step_then_user_should_be_logged_in_successfully(context):
     # Implement your verification step here, e.g., checking for a successful login
     # This could be checking for a specific element that appears on successful login
-    print("User is logged in")
-
+    logger.info("Verifying user is logged in")
+    context.login_page.is_user_logged_in()
 
 def after_all(context):
     logger.info("Tearing down WebDriver")

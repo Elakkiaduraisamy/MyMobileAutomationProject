@@ -4,11 +4,30 @@
     "appium_server_port": "4723",
     "log_level" : "debug",
     "log_file_path" : "./logs/appium.log",
-    "platform_name": "iOS",
-    "platform_version": "17.5",
-    "device_name": "iPhone 15 Pro",
-    "automation_name": "XCUITest",
-    "udid": "C018097A-D596-4E73-9787-881E3335AEB6",
-    "bundle_id": "com.saucelabs.SwagLabsMobileApp",
-    "app_path": "apps/iOS.Simulator.SauceLabs.Mobile.Sample.app.2.7.1.app"
+    "ios" : {
+        "platform_name": "iOS",
+        "platform_version": "17.5",
+        "device_name": "iPhone 15 Pro",
+        "automation_name": "XCUITest",
+        "udid1": "C018097A-D596-4E73-9787-881E3335AEB6",
+        "udid": "E715CD1E-AFFE-458E-A575-6ABF52110788",
+        "bundle_id": "com.saucelabs.SwagLabsMobileApp",
+        "app_path": "apps/iOS.Simulator.SauceLabs.Mobile.Sample.app.2.7.1.app",
+        "wda_local_port": 8100,
+    "   xcode_org_id": "",
+    "   xcode_signing_id": "iPhone Developer"
+    },
+    "android": {
+        "platform_name": "android",
+        "platform_version": "9.0",
+        "device_name": "emulator-5556",
+        "automation_name": "UiAutomator2",
+        "app_path": "apps/Android.SauceLabs.Mobile.Sample.app.2.7.1.apk",
+        "app_package": "com.swaglabsmobileapp",
+        "app_activity": "com.swaglabsmobileapp.SplashActivity",
+        "bundle_id": "com.saucelabs.SwagLabsMobileApp"
+    }
+
 }
+
+
