@@ -94,7 +94,8 @@ project_root/
 
 To run the tests, use the following command:
 ```sh
-behave -f allure_behave.formatter:AllureFormatter -o reports/ tests/features/login.feature
+behave -f allure_behave.formatter:AllureFormatter -o reports/ tests/features -D platform=ios
+
 ```
 This command will execute the test scenarios defined in the login.feature file and generate Allure report data.
 
@@ -166,7 +167,7 @@ To generate and view Allure reports:
 1. Run the tests with Allure result directory specified:
 
     ```shell
-    behave -f allure_behave.formatter:AllureFormatter -o reports/ tests/features/login.feature
+   behave -f allure_behave.formatter:AllureFormatter -o reports/ tests/features -D platform=ios
     ```
 2. Generate the Allure report:
     ```shell
