@@ -139,6 +139,7 @@ def enter_text(self, locator, text, timeout=10):
 def element_click(driver, locator, timeout=10):
     try:
         WebDriverWait(driver, timeout).until(EC.presence_of_element_located(locator))
+        print("element located")
         WebDriverWait(driver, timeout).until(EC.element_to_be_clickable(locator))
         element = driver.find_element(*locator)
         element.click()

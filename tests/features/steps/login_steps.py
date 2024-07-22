@@ -5,12 +5,11 @@ from pages.login_page import LoginPage  # Assuming LoginPage is in the correct m
 
 
 @given('the app is set up')
-def step_given_app_is_set_up( context):
+def step_given_app_is_set_up(context):
     logger.info("Setting up WebDriver")
     platform_name = context.config.userdata.get('platform', 'iOS')  # Default to iOS if not specified
-    context.webdriver_init = WebDriverSetup( context)
-    context.driver = context.webdriver_init.setup_driver()
-    context.login_page = LoginPage(context.driver)
+    context.webdriver_init = WebDriverSetup(context)
+    context.login_page = LoginPage(context.driver, context.input_platform_name)
 
 
 @when('the user logs in with standard credentials')
@@ -25,6 +24,7 @@ def step_then_user_should_be_logged_in_successfully(context):
     # This could be checking for a specific element that appears on successful login
     logger.info("Verifying user is logged in")
     context.login_page.is_user_logged_in()
+
 
 def after_all(context):
     logger.info("Tearing down WebDriver")

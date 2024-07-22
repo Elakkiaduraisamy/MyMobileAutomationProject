@@ -1,62 +1,28 @@
-from appium.webdriver.common.appiumby import AppiumBy
-from selenium.webdriver import ActionChains
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
-from utils.appium_utilities import enter_text
-import logging
 
-logger = logging.getLogger('app_logger')
+from selenium.webdriver.support.ui import WebDriverWait
+from pages.android.AndroidLoginPage import AndroidLoginPage
+from pages.ios.iOSLoginPage import IOSLoginPage
+import logging
+from utils.logger import logger
 
 
 class LoginPage:
-
-    def __init__(self, driver):
+    def __init__(self, driver, platform_name):
         self.driver = driver
-        self.wait = WebDriverWait(self.driver, 25)  # Increased timeout to 20 seconds
+        self.wait = WebDriverWait(self.driver, 10)
+        self.platform_name = platform_name.lower()  # Increased timeout to 20 seconds
 
-
-    def double_click_to_open_app(self):
-        wait = WebDriverWait(self.driver, 20)
-
-        # Locate the app icon or element to double-click
-        app_icon = wait.until(EC.presence_of_element_located((AppiumBy.XPATH,
-                                                              '//XCUIElementTypeApplication[@name=" "]/XCUIElementTypeWindow[5]/XCUIElementTypeOther/XCUIElementTypeOther[3]/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther[2]')))
-
-        # Perform a double-click action
-        action = ActionChains(self.driver)
-        action.double_click(app_icon).perform()
-        logger.info("Double-clicked on the app icon to open the app")
+        if self.platform_name == 'android':
+            logger.info("inside Login Page - Platform is Android")
+            self.page = AndroidLoginPage(driver, self.wait)
+        elif self.platform_name == 'ios':
+            logger.info("inside Login Page - Platform is iOS")
+            self.page = IOSLoginPage(driver, self.wait)
+        else:
+            raise ValueError(f"Unsupported platform: {self.platform_name}")
 
     def login_with_standard_user(self):
-
-        # Add detailed logs for element finding
-        print('driver' ,self.driver)
-        try:
-            logger.info("Trying to find element by IOS_PREDICATE: 'test-standard_user'")
-            standard_user_link = self.wait.until(
-                EC.presence_of_element_located((AppiumBy.IOS_PREDICATE, 'name == "test-standard_user"')))
-        except (NoSuchElementException, TimeoutException):
-            logger.warning("Element not found with ACCESSIBILITY_ID: 'test-standard_user'. Trying by NAME.")
-            try:
-                standard_user_link = self.wait.until(EC.presence_of_element_located((AppiumBy.NAME, 'standard_user')))
-            except (NoSuchElementException, TimeoutException):
-                logger.error("Element not found with NAME: 'standard_user'. Trying by XPATH.")
-                standard_user_link = self.wait.until(
-                    EC.presence_of_element_located((AppiumBy.XPATH, '//*[@label="standard_user"]')))
-
-        standard_user_link.click()
-
-        login_button = self.wait.until(EC.presence_of_element_located((AppiumBy.ACCESSIBILITY_ID, 'test-LOGIN')))
-        login_button.click()
+        self.page.login_with_standard_user()
 
     def is_user_logged_in(self):
-        print("getting the title of the page")
-        logger.info("getting the title of the page")
-        actual_title_image = self.wait.until(EC.presence_of_element_located(
-            (AppiumBy.IOS_CLASS_CHAIN, '**/XCUIElementTypeStaticText[`name == "PRODUCTS"`]')))
-
-        actual_title = actual_title_image.get_attribute("name")
-        print(actual_title)
-
-        assert actual_title == "PRODUCTS"
+        self.page.is_user_logged_in()

@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 from utils.logger import logger
 from webdriver.webdriver_setup import WebDriverSetup
@@ -39,8 +40,9 @@ def before_scenario(context, scenario):
     if not hasattr(context, 'webdriver_setup'):
         logger.error(f"WebDriver setup is not initialized. Skipping scenario: {scenario.name}")
         return
-    logger.info(f"Setting up WebDriver for scenario: {scenario.name}")
-    context.driver = context.webdriver_setup.setup_driver()
+    if context.driver is None:
+        logger.info(f"Setting up WebDriver for scenario: {scenario.name}")
+        context.driver = context.webdriver_setup.setup_driver()
     context.allure_report_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../reports'))
     if not os.path.exists(context.allure_report_dir):
         os.makedirs(context.allure_report_dir)
@@ -57,3 +59,28 @@ def after_all(context):
     logger.info("Tearing down after all tests")
     if hasattr(context, 'webdriver_setup') and context.webdriver_setup:
         context.webdriver_setup.teardown_driver
+
+    if context.platform_config['platform_name'].lower() == 'ios':
+        context.shutdown_ios_simulator()
+    # Close the Android emulator
+    elif context.platform_config['platform_name'].lower() == 'android':
+        context.shutdown_android_emulator()
+
+    def shutdown_ios_simulator(self):
+        try:
+            ud_id = self.platform_config.get('udid')
+            if ud_id:
+                subprocess.run(['xcrun', 'simctl', 'shutdown', ud_id], check=True)
+                logger.info(f"Simulator with UDID {ud_id} has been shut down.")
+            else:
+                logger.error("UDID is not provided in the config to shut down the simulator.")
+
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Failed to shut down the simulator: {e}")
+
+    def shutdown_android_emulator(self):
+        try:
+            subprocess.run(['adb', 'emu', 'kill'], check=True)
+            logger.info("Android emulator has been shut down.")
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Failed to shut down the emulator: {e}")
