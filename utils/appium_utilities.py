@@ -3,6 +3,9 @@ import time
 
 from appium.options.android import UiAutomator2Options
 from appium.webdriver.appium_service import AppiumService
+from appium.webdriver.common.touch_action import TouchAction
+from selenium.webdriver.common.actions import interaction
+from selenium.webdriver.common.actions.pointer_input import PointerInput
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
@@ -36,6 +39,7 @@ def start_appium_server(config):
         logger.error('Failed to start Appium server within the timeout')
 
     return appium_service
+
 
 """
 def launch_appium_options(platform_config, user_passed_platform_name, config):
@@ -89,6 +93,7 @@ def launch_appium_options(platform_config, user_passed_platform_name, config):
 
 
 def launch_appium_options(platform_config, platform_name):
+    print("entering the launch option method")
     try:
         if platform_name.lower() == 'ios':
             options = XCUITestOptions()
@@ -99,7 +104,7 @@ def launch_appium_options(platform_config, platform_name):
             options.set_capability('app', platform_config['app_path'])
             options.set_capability('wdaLaunchTimeout', 120000)
             options.set_capability('bundleId', platform_config['bundle_id'])
-            options.set_capability('resetOnSessionStartOnly', True)
+            options.set_capability('resetOnSessionStartOnly', False)
         elif platform_name.lower() == 'android':
             options = UiAutomator2Options()
             options.set_capability('platformName', platform_config['platform_name'])
@@ -181,7 +186,9 @@ def switch_to_native(driver):
 
 
 def swipe_with_action_chains_using_coordinates(driver, direction):
+    logger.info("i am in swipe method")
     window_size = driver.get_window_size()
+    print(window_size)
     width = window_size['width']
     height = window_size['height']
 
@@ -189,7 +196,9 @@ def swipe_with_action_chains_using_coordinates(driver, direction):
     start_y = height / 2
     end_x = start_x
     end_y = start_y
-
+    start_x = width / 2
+    start_x = width / 2
+    print(start_x)
     if direction == 'up':
         end_y = start_y - (height / 4)
     elif direction == 'down':
@@ -208,6 +217,34 @@ def swipe_with_action_chains_using_coordinates(driver, direction):
     actions.release()
     actions.perform()
     logger.info(f"Swiped {direction}")
+
+
+def swipe_down(driver, duration=800):
+    """
+    Swipe down the screen.
+
+    :param driver: The WebDriver instance.
+    :param duration: Duration of the swipe in milliseconds.
+    """
+    size = driver.get_window_size()
+    start_x = size['width'] // 2
+    start_y = int(size['height'] * 0.2)
+    end_y = int(size['height'] * 0.05)
+
+    actions = ActionChains(driver)
+    pointer = PointerInput(interaction.POINTER_TOUCH, "touch")
+
+    # Perform the swipe action
+    actions = ActionChains(driver)
+    pointer = PointerInput(interaction.POINTER_TOUCH, "touch")
+
+    # Perform the swipe action
+    actions.w3c_actions.pointer_action.move_to_location(start_x, start_y)
+    actions.w3c_actions.pointer_action.pointer_down(button=0)
+    actions.w3c_actions.pointer_action.pause(duration / 1000)  # duration should be in seconds
+    actions.w3c_actions.pointer_action.move_to_location(start_x, end_y)
+    actions.w3c_actions.pointer_action.pointer_up(button=0)
+    actions.perform()
 
 
 def uninstall_app(driver, bundle_id):

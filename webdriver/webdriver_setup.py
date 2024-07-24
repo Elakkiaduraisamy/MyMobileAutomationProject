@@ -37,7 +37,8 @@ class WebDriverSetup:
         server_url = f"http://{self.appconfig['appium_server_address']}:{self.appconfig['appium_server_port']}"
         logger.info(f"Connecting to Appium server at {server_url}")
         self.driver = webdriver.Remote(server_url, options=options)
-        self.driver.implicitly_wait(5)
+        print("driver is set for testing")
+        self.driver.implicitly_wait(20)
         return self.driver
 
     def is_app_installed(self, bundle_id):

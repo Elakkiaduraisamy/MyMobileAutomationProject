@@ -1,6 +1,9 @@
 import os
 import subprocess
 import sys
+
+from selenium.common.exceptions import WebDriverException
+
 from utils.logger import logger
 from webdriver.webdriver_setup import WebDriverSetup
 from utils.config_loader import load_config, get_platform_config
@@ -17,51 +20,69 @@ def before_all(context):
     print("envir config path: " + config_path)
     appconfig = load_config(config_path)
     context.appconfig = appconfig
+    context.app_logger = logger
     if appconfig is None:
-        logger.error("Failed to load configuration. Aborting test run.")
+        context.app_logger.error("Failed to load configuration. Aborting test run.")
         return
 
     input_platform_name = context.config.userdata.get('platform', 'iOS')  # Default to iOS if not specified
     context.input_platform_name = input_platform_name
-    logger.info(f"Platform name: {input_platform_name}")
+    context.app_logger.info(f"Platform name: {input_platform_name}")
 
     app_platform_config = get_platform_config(appconfig, input_platform_name)
     context.app_platform_config = app_platform_config
-    logger.info(f"Platform_config: {app_platform_config}")
+    context.app_logger.info(f"Platform_config: {app_platform_config}")
 
     if app_platform_config is None:
         logger.error(f"Failed to get platform configuration for '{input_platform_name}'. Aborting test run.")
         return
 
     context.webdriver_setup = WebDriverSetup(context)
+    context.driver = context.webdriver_setup.setup_driver()
+    print("done before all")
 
 
 def before_scenario(context, scenario):
+    print("entering before scenario")
+    """ 
     if not hasattr(context, 'webdriver_setup'):
-        logger.error(f"WebDriver setup is not initialized. Skipping scenario: {scenario.name}")
+        context.app_logger.error(f"WebDriver setup is not initialized. Skipping scenario: {scenario.name}")
         return
+
+    if context.app_platform_config is None:
+        logger.error(f"Failed to get platform configuration for '{context.input_platform_name}'. Aborting test run.")
+        return
+
     if context.driver is None:
-        logger.info(f"Setting up WebDriver for scenario: {scenario.name}")
+        context.app_logger.info(f"Setting up WebDriver for scenario: {scenario.name}")
         context.driver = context.webdriver_setup.setup_driver()
+"""
     context.allure_report_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../reports'))
     if not os.path.exists(context.allure_report_dir):
         os.makedirs(context.allure_report_dir)
 
 
 def after_scenario(context, scenario):
-    logger.info(f"Tearing down WebDriver for scenario: {scenario.name}")
+    context.app_logger.info(f"Finished scenario: {scenario.name}")
+    """
     if hasattr(context, 'driver') and context.driver:
-        context.driver.quit()
-        context.driver = None
+        try:
+            context.driver.quit()
+        except WebDriverException as e:
+            context.app_logger.error(f"Error during scenario WebDriver quit: {e}")
+        finally:
+            context.driver = None
+"""
 
 
 def after_all(context):
-    logger.info("Tearing down after all tests")
+    context.app_logger.info("Tearing down after all tests")
     if hasattr(context, 'webdriver_setup') and context.webdriver_setup:
-        context.webdriver_setup.teardown_driver
+        (context.webdriver_setup.teardown_driver())
 
     if context.platform_config['platform_name'].lower() == 'ios':
         context.shutdown_ios_simulator()
+
     # Close the Android emulator
     elif context.platform_config['platform_name'].lower() == 'android':
         context.shutdown_android_emulator()
@@ -73,14 +94,14 @@ def after_all(context):
                 subprocess.run(['xcrun', 'simctl', 'shutdown', ud_id], check=True)
                 logger.info(f"Simulator with UDID {ud_id} has been shut down.")
             else:
-                logger.error("UDID is not provided in the config to shut down the simulator.")
+                context.app_logger.error("UDID is not provided in the config to shut down the simulator.")
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"Failed to shut down the simulator: {e}")
+            context.app_logger.error(f"Failed to shut down the simulator: {e}")
 
     def shutdown_android_emulator(self):
         try:
             subprocess.run(['adb', 'emu', 'kill'], check=True)
-            logger.info("Android emulator has been shut down.")
+            context.app_logger.info("Android emulator has been shut down.")
         except subprocess.CalledProcessError as e:
-            logger.error(f"Failed to shut down the emulator: {e}")
+            context.app_logger.error(f"Failed to shut down the emulator: {e}")

@@ -28,6 +28,7 @@ class IOSLoginPage:
         logger.info("trying to find login button")
         login_button = self.wait.until(EC.presence_of_element_located(self.login_button_locator))
         login_button.click()
+        self.driver.implicitly_wait(10)
 
     def is_user_logged_in(self):
         print("getting the title of the page")
