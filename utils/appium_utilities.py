@@ -222,9 +222,8 @@ def swipe_with_action_chains_using_coordinates(driver, direction):
 def swipe_down(driver, duration=800):
     """
     Swipe down the screen.
-
-    :param driver: The WebDriver instance.
-    :param duration: Duration of the swipe in milliseconds.
+    param driver: The WebDriver instance.
+    param duration: Duration of the swipe in milliseconds.
     """
     size = driver.get_window_size()
     start_x = size['width'] // 2
@@ -245,6 +244,16 @@ def swipe_down(driver, duration=800):
     actions.w3c_actions.pointer_action.move_to_location(start_x, end_y)
     actions.w3c_actions.pointer_action.pointer_up(button=0)
     actions.perform()
+
+
+def scroll_to_element(driver, element_locator,direction):
+    driver.execute_script('mobile: scroll', {"direction": direction})
+    try:
+        element = driver.find_element(*element_locator)
+    except:
+        driver.execute_script('mobile: scroll', {"direction": direction})
+        element = driver.find_element(*element_locator)
+    return element
 
 
 def uninstall_app(driver, bundle_id):

@@ -40,10 +40,15 @@ def step_impl(context):
     logger.info("user is adding the product to the cart")
     context.product_page.add_to_cart()
 
-"""
-@then(u'user scrolls down to see the social media links and copyrights')
+
+@given(u'user scrolls down')
 def step_impl(context):
-    logger.info("user is user is scrolling the page")
-    swipe_down(context.driver)
+    context.product_page = ProductPage(context.driver, context.input_platform_name)
+    logger.info("user is scrolling the screen searching for copyrights and social media ")
+    swipe_down(context.driver, 1000)
+
+
+@then(u'user can see the social media links and copyrights')
+def step_impl(context):
+    logger.info("user is finding the copyrights in the page")
     context.product_page.social_media_copyright_links()
-"""

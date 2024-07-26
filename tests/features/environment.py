@@ -39,7 +39,6 @@ def before_all(context):
 
     context.webdriver_setup = WebDriverSetup(context)
     context.driver = context.webdriver_setup.setup_driver()
-    print("done before all")
 
 
 def before_scenario(context, scenario):
@@ -52,11 +51,11 @@ def before_scenario(context, scenario):
     if context.app_platform_config is None:
         logger.error(f"Failed to get platform configuration for '{context.input_platform_name}'. Aborting test run.")
         return
-
+"""
     if context.driver is None:
         context.app_logger.info(f"Setting up WebDriver for scenario: {scenario.name}")
         context.driver = context.webdriver_setup.setup_driver()
-"""
+
     context.allure_report_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../reports'))
     if not os.path.exists(context.allure_report_dir):
         os.makedirs(context.allure_report_dir)
@@ -64,6 +63,7 @@ def before_scenario(context, scenario):
 
 def after_scenario(context, scenario):
     context.app_logger.info(f"Finished scenario: {scenario.name}")
+
     """
     if hasattr(context, 'driver') and context.driver:
         try:

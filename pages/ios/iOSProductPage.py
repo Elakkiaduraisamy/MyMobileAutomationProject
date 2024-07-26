@@ -3,7 +3,7 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
-from utils.appium_utilities import swipe_with_action_chains_using_coordinates, swipe_down
+from utils.appium_utilities import swipe_with_action_chains_using_coordinates, swipe_down, scroll_to_element
 from utils.logger import logger
 
 
@@ -25,7 +25,7 @@ class IOSProductPage:
         self.product_price_locator = (AppiumBy.XPATH, '//XCUIElementTypeStaticText[@name="test-Price"]')
         self.add_to_cart_locator = (AppiumBy.IOS_PREDICATE, 'name == "test-ADD TO CART"')
         self.remove_from_cart_locator = (AppiumBy.IOS_PREDICATE, 'name == "test-REMOVE"')
-
+        self.cpy_right_locator = (AppiumBy.IOS_PREDICATE, 'name == "© 2024 Sauce Labs. All Rights Reserved."')
     def user_selects_products(self):
         try:
             logger.info("Trying to find product to select: ")
@@ -45,7 +45,7 @@ class IOSProductPage:
                 EC.presence_of_element_located(self.navigated_product_page_title_locator))
         except (NoSuchElementException, TimeoutException):
             logger.info("product page is not displayed")
-        logger.info("Trying to find title of product page  selected ")
+        logger.info("Trying to find title of selected products page")
         actual_navigated_page_title = navigated_product_page_title.get_attribute("label")
         print(actual_navigated_page_title)
         assert (actual_navigated_page_title == "BACK TO PRODUCTS")
@@ -58,10 +58,8 @@ class IOSProductPage:
             product_page_name = self.wait.until(EC.presence_of_element_located(self.product_title_locator))
         except (NoSuchElementException, TimeoutException):
             logger.info("product page is not displayed")
-        logger.info("before getting verify - title of the product")
         actual_product_title = product_page_name.get_attribute('name')
-        print(actual_product_title)
-        logger.info(" after verify - title of the product")
+        logger.info(" Verified - title of the product selected")
         assert (actual_product_title == self.expected_product_name)
 
     def get_product_price(self):
@@ -84,11 +82,8 @@ class IOSProductPage:
             raise
 
         self.driver.implicitly_wait(20)
-        print("___________________")
+
         actual_product_price = product_price.get_attribute('label')
-        print("___________________")
-        print(actual_product_price)
-        logger.info(actual_product_price)
         logger.info(" after verify - title of the product")
         assert "carry.allTheThings()" in actual_product_description
         assert actual_product_price == '$29.99'
@@ -97,15 +92,36 @@ class IOSProductPage:
     def add_to_cart(self):
         logger.info("Clicking the add to cart button")
         swipe_down(self.driver)
-        add_to_cart = self.wait.until(EC.presence_of_element_located(self.add_to_cart_locator))
-        add_to_cart.click()
+        try:
+            add_to_cart = self.wait.until(EC.presence_of_element_located(self.add_to_cart_locator))
+            add_to_cart.click()
 
-        remove_button = self.wait.until(EC.presence_of_element_located(self.remove_from_cart_locator))
-        if remove_button.is_enabled:
-            remove_button.click()
+            remove_button = self.wait.until(EC.presence_of_element_located(self.remove_from_cart_locator))
+            if remove_button.is_enabled:
+                remove_button.click()
 
-        add_to_cart = self.wait.until(EC.presence_of_element_located(self.add_to_cart_locator))
-        add_to_cart.click()
+            add_to_cart = self.wait.until(EC.presence_of_element_located(self.add_to_cart_locator))
+            add_to_cart.click()
+            logger.info("Product selected is added to the cart")
+
+        except NoSuchElementException:
+            logger.info("add to cart button is not found")
+            raise
 
     def social_media_copyright_links(self):
-        swipe_down(self.driver)
+        cpy_right_string = None
+        self.driver.implicitly_wait(50)
+        logger.info(" scrolling to find the copy rights below the app")
+        try:
+            print("inside scroll to element method")
+            scroll_to_element(self.driver,self.cpy_right_locator,"down")
+            cpy_right = self.wait.until(EC.presence_of_element_located(self.cpy_right_locator))
+            cpy_right_string = cpy_right.get_attribute("value")
+            print(cpy_right_string)
+        except (NoSuchElementException, TimeoutException):
+            logger.info("copyrights is not found")
+
+        assert "© 2024 Sauce Labs." in cpy_right_string
+        logger.info("copy rights are found below the app")
+
+

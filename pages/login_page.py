@@ -1,4 +1,3 @@
-
 from selenium.webdriver.support.ui import WebDriverWait
 from pages.android.AndroidLoginPage import AndroidLoginPage
 from pages.ios.iOSLoginPage import IOSLoginPage
@@ -26,3 +25,15 @@ class LoginPage:
 
     def is_user_logged_in(self):
         self.page.is_user_logged_in()
+
+    def user_log_out(self):
+        self.page.user_log_out()
+
+    def verify_login_page(self):
+        self.page.verify_login_page()
+
+    def login_with_wrong_user(self):
+        self.page.login_with_wrong_user()
+
+    def verify_wrong_error_msg(self):
+        self.page.verify_wrong_error_msg()

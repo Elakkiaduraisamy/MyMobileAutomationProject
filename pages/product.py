@@ -14,10 +14,10 @@ class ProductPage:
         self.platform_name = platform_name.lower()  # Increased timeout to 20 seconds
 
         if self.platform_name == 'android':
-            logger.info("inside Login Page - Platform is Android")
+            logger.info("inside product Page - Platform is Android")
             #self.page = AndroidProductPage(driver, self.wait)
         elif self.platform_name == 'ios':
-            logger.info("inside Login Page - Platform is iOS")
+            logger.info("inside product Page - Platform is iOS")
             self.page = IOSProductPage(driver, self.wait)
         else:
             raise ValueError(f"Unsupported platform: {self.platform_name}")
