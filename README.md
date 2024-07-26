@@ -74,8 +74,7 @@ project_root/
 
 3. Install the required Python packages:
     ```sh
-    python3 -m venv myvenv
-    source myvenv/bin/activate
+    pip3 install -r requirements.txt
     ```
 
 4. Install Appium:

@@ -20,7 +20,7 @@ def load_config(config_file):
 
 def get_platform_config(config, platform_name):
     print("I am inside get_platform_config method :" )
-    print (config[platform_name.lower()])
+    print(config[platform_name.lower()])
     try:
         return config[platform_name.lower()]
     except KeyError:
